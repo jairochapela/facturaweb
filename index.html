@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Factura Web</title>
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/main.css"/>
+  </head>
+
+  <body>
+    <heading>
+      <address>
+	<img src="img/logo.gif" alt="ACME logo">
+	<h2>Industrias ACME, S.A.</h2>
+	<p id="cif">CIF: B12345678</p>
+	<p>
+	  Calle Falsa, 123<br/>
+	  12345 Ninguna Parte
+	</p>
+      </address>
+
+      <h1>Factura</h1>
+    </heading>
+
+    <aside id="client_data">
+      <h3>Datos del cliente</h3>
+
+	<label for="client_name">Nombre</label><input type='text' name='client_name'><br>
+	<label for="cif">CIF/NIF</label><input type='text' name='cif'><br>
+	<label for="address">Dirección</label><input type='text' name='address'><br>
+	<label for="zipcode">CP</label><input type='text' name='zipcode'><br>
+
+    </aside>
+
+    <section id="accounting_data">
+	<label for="numfactura">Factura número: </label><input type="number" name="numfactura"><br>
+	<label for="edate">Fecha de emisión: </label><input type="date" name="edate"><br>
+    </section>
+
+    <section id="conceptos">
+      <h3>Operaciones</h3>
+      <table>
+	<thead>
+	  <tr>
+	    <th>Concepto</th>
+	    <th class="numeric">Cantidad</th>
+	    <th class="numeric">Precio Unit.</th>
+	    <th class="numeric">Importe</th>
+	  </tr>
+	</thead>
+	<tbody>
+	</tbody>
+      </table>
+      <button class="ui" name="add">Añadir operación</button>
+    </section>
+
+    <section id="resumen">
+      <h3>Resumen</h3>
+      <ul>
+	<li><span class="key">Base imponible: </span><span id="base" class="value money"></span></li>
+	<li><span class="key">IVA aplicable: </span><span class="value">21%</span></li>
+	<li><span class="key">Total a pagar: </span><span id="total" class="value money"></span></li>
+      </ul>
+    </section>
+
+    <script>
+     function addRow() {
+       var $tr = $("<tr></tr>");
+       $tr.append($("<td></td>").append($("<input type='text' name='concept' placeholder='Descripción del concepto'></input>").addClass("concept")));
+       $tr.append($("<td></td>").append($("<input type='number' step='1' min='1' name='qty' value='1'></input>").addClass("qty")));
+       $tr.append($("<td></td>").addClass("money").append($("<input type='number' step='0.01' min='0' value='0.00' name='unitp'></input>").addClass("unitp")));
+       $tr.append($("<td></td>").addClass("money").append($("<input type='text' name='price' readonly></input>").addClass("price")));
+      /* $tr.append($("<td class='qty' contenteditable>0</td>").addClass("numeric"));
+       $tr.append($("<td class='unitp' contenteditable>0</td>").addClass("numeric currency"));
+       $tr.append($("<td class='price'>xxx</td>").addClass("numeric currency")); */
+       $("#conceptos table tbody").append($tr).trigger("change");
+     }
+
+     $("button.ui").click(function() {
+       addRow();
+     });
+
+     $("#conceptos table tbody").change(function() {
+       console.log("cambio");
+       $("tr", this).each(function() {
+	 var qty = $("input[name=qty]", this).val();
+	 var unitp = $("input[name=unitp]", this).val();
+	 $("input[name=price]", this).val((qty * unitp).toFixed(2));
+       });
+
+       var baseImp = 0;
+       $("input[name=price]", this).each(function() {
+	 baseImp += parseFloat($(this).val());
+       });
+       $("span.value#base").html(baseImp.toFixed(2));
+
+       var iva = 0.21;
+       $("span.value#total").html((baseImp * (1 + iva)).toFixed(2));
+
+     });
+
+     $(document).ready(function() {
+       addRow();
+     });
+    </script>
+  </body>
+</html>
